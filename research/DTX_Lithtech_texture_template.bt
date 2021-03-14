@@ -1,0 +1,92 @@
+struct LTString
+{
+    ushort length;
+    char content[length];
+};
+
+struct Colour
+{
+    ubyte alpha;
+    ubyte red;
+    ubyte green;
+    ubyte blue;
+};
+
+struct Header
+{
+    uint unknown;
+    enum { DTX_VERSION=-2 } version;
+    ushort width;
+    ushort height;
+    ushort mipmap_count; // mip map count or bytes per pixel? always 4
+    ushort has_lights;
+    uint flags <format=hex>; // maybe general flags? 0x09 default, 0x20 = map to master palette
+    /*
+    DTX_FULLBRITE		(1<<0)	// This DTX has fullbrite colors
+	DTX_ALPHA_MASKS		(1<<1)	// This texture contains alpha masks
+	DTX_UNKNOWN         (1<<2)  // Unknown
+	DTX_UNKNOWN         (1<<3)	// Unknown, seems to always be set
+    */
+    uint flags <format=hex>;
+    ubyte group;
+    ubyte mipmaps_used_count; // 0 = 4?
+    ubyte alpha_cutoff; // seems to be limited to [128-255]
+    ubyte alpha_average;
+    uint unknown;
+    uint unknown;
+    ubyte unknown;
+    ubyte unknown;
+    ushort unknown; // possible palette offset?
+    ubyte unknown;
+    ubyte unknown;
+    ushort unknown;
+} header;
+
+Colour colours[256]; // no matter how many colours are used it always has 256 here
+
+local int i, x, y;
+for(i=0; i<header.mipmap_count; ++i)
+{
+    struct Pixels
+    {
+        for(y=0; y<header.height >> i; ++y)
+        {
+            for(x=0; x<header.width >> i; ++x)
+            {
+                ubyte pixels;
+            }
+        }
+    } mipmaps;
+}
+
+if (header.flags[0] & 2)
+{
+    for (i=0; i<header.mipmap_count; ++i)
+    {
+        struct AlphaMap
+        {
+            for(y=0; y<header.height >> i; ++y)
+            {
+                for(x=0; x<header.width/2 >> i; ++x)
+                {
+                    ubyte alpha : 4;
+                    ubyte alpha : 4;
+                }
+            }
+        } alpha_maps;
+    }
+}
+
+if (header.has_lights)
+{
+    struct Lights
+    {
+        char LIGHTDEFS[];
+        ushort unknown[9]; // looks random, but must be important to the processor
+        struct LTLongString
+        {
+            uint length;
+            char content[];
+        } strings;
+    } lights;
+}
